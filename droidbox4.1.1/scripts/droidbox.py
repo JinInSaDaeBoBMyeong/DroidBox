@@ -253,14 +253,14 @@ def interruptHandler(signum, frame):
 
 def main(argv):
 
-	if len(argv) < 2 or len(argv) > 3:
+	if len(argv) < 3 or len(argv) > 4:
 		print("Usage: droidbox.py filename.apk <duration in seconds>")
 	        sys.exit(1)
 		    
 	duration = 0
 
 	#Duration given?
-	if len(argv) == 3:
+	if len(argv) == 4:
 		duration = int(argv[2])
 
 	apkName = sys.argv[1]
@@ -287,6 +287,10 @@ def main(argv):
 
 	#Get the hashes
 	hashes = application.getHashes()
+ 
+	#config
+	if hashes[2]+".json" in os.listdir("./results"):
+		exit(0)
 
 	curses.setupterm()
 	sys.stdout.write(curses.tigetstr("clear"))
@@ -322,7 +326,9 @@ def main(argv):
 
 	#By default the application has not started
 	applicationStarted = 0
-	stringApplicationStarted = "Start proc %s" % packageName
+	# stringApplicationStarted = "Start proc %s" % packageName
+	stringApplicationStarted = "Start proc"
+	stringApplicationStarted_1 = packageName
 
 	#Open the adb logcat
 	adb = Popen(["adb", "logcat", "DroidBox:W", "dalvikvm:W", "ActivityManager:I"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -335,7 +341,8 @@ def main(argv):
                     		raise Exception("We have lost the connection with ADB.")
 
 			#Application started?
-			if (stringApplicationStarted in logcatInput):
+			# if (stringApplicationStarted in logcatInput):
+			if (stringApplicationStarted and stringApplicationStarted_1 in logcatInput):
 				applicationStarted = 1
 				break;
 		except:
@@ -504,15 +511,15 @@ def main(argv):
 	output["enfperm"] = enfperm
 
 	output["hashes"] = hashes
-	output["apkName"] = apkName
+	output["apkName"] = apkName[9:]
 
-        pathtemp = sys.path[0]
+        pathtemp = "./results"
         os.chdir(pathtemp)
-        json.dump(output, open('droidboxlog_' + time.strftime('%H:%M_%Y%m%d') +'.json','w'))
+        json.dump(output, open(output['hashes'][2]+'.json','w'))
 
-
-	print(json.dumps(output))
+	print("[*] "+argv[3]+" "+hashes[2]+" is processing")
 	sys.exit(0)
 
 if __name__ == "__main__":
     main(sys.argv)
+    

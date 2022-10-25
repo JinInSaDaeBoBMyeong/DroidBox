@@ -53,3 +53,4 @@ android
 ```
 
 The analysis is currently not automated except for installing and starting packages. Ending the analysis is simply done by pressing Ctrl-C. A package will also be implemented soon to populate the emulator with data prior to performing analysis.
+# DroidBox
